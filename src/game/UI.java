@@ -3,11 +3,16 @@
 
 package game;
 
+import game.shared.Guess;
+
 import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static game.shared.Constants.*;
 
@@ -26,7 +31,7 @@ public class UI {
     private JPanel[][] charBoxes;
     
     JTextField input;
-    String inputText = "";
+    volatile String inputText = "";
     
     public static void main(String[] args) {
         UI ui = new UI();
@@ -34,6 +39,34 @@ public class UI {
     
     public UI() {
         setup();
+    }
+    
+    public void update(Game game) {
+        System.out.println(game.getCurrentWord());
+        
+        int count = game.getNumGuesses();
+        while (count < NUM_ALLOWED_GUESSES) {
+            // await input
+            while (inputText == "") {
+                Thread.onSpinWait();
+            }
+            // check for invalid input
+            if (game.invalidInput(inputText))
+                continue;
+            
+            // create new guess and update ui
+            Guess guess = new Guess(inputText.toUpperCase(), game.getCurrentWord());
+            updateCharBox(game.getNumGuesses(), guess);
+            updatePanels();
+            
+            // reset inputText
+            inputText = "";
+            
+            
+            // increment
+            game.incNumGuesses();
+            count++;
+        }
     }
     
     public JLabel charLabel(String s) {
@@ -88,9 +121,11 @@ public class UI {
         
         input = new JTextField(30);
         JButton submit = new JButton("Enter Guess");
-//        String text = "";
         
-        submit.addActionListener(new ButtonListener());
+        // add button listener to detect input
+        ButtonListener bl = new ButtonListener();
+        input.addActionListener(bl);
+        submit.addActionListener(bl);
         
         entryPanel.add(input);
         entryPanel.add(submit);
@@ -104,64 +139,51 @@ public class UI {
         //      charBoxes[][] with appropriate letters and colours
         // might make the UI within the Game class ... idrk
         
-//        submit.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                inputText = input.getText();
-////                System.out.println(inputText);
-//                
-//                if (inputText.length() == WORD_LENGTH) {
-//                    for (int i = 0; i < inputText.length(); i++) {
-//                        JLabel newLabel = charLabel(String.valueOf(inputText.charAt(i)));
-//                        charBoxes[0][i].remove(0);
-//                        charBoxes[0][i].add(newLabel);
-//                        
-//                        charBoxes[0][i].revalidate();
-//                        charBoxes[0][i].repaint();
-//                        guessPanel.revalidate();
-//                        guessPanel.repaint();
-//                        gameWindow.revalidate();
-//                        gameWindow.repaint();
-//                        
-//                    }
-//                }
-//            }
-//        });
-        
         // add components
         gameWindow.add(guessPanel, BorderLayout.CENTER);
         gameWindow.add(entryPanel, BorderLayout.PAGE_END);
-        
         
         // finalize window
         gameWindow.pack();
         gameWindow.setVisible(true);
     }
     
+    public void updateCharBox(int row, Guess guess) {
+        for (int i = 0; i < guess.getGuess().size(); i++) {
+            Integer key = (Integer) guess.getGuess().get(i).keySet().toArray()[0];
+            Character value = (Character) guess.getGuess().get(i).values().toArray()[0];
+            
+            Color bgColour = switch (key) {
+                case 0 -> DARK_GREY;
+                case 1 -> YELLOW;
+                case 2 -> GREEN;
+                default -> BACKGROUND;
+            };
+
+            JLabel newLabel = charLabel(String.valueOf(value));
+            
+            charBoxes[row][i].setBackground(bgColour);
+            charBoxes[row][i].remove(0);
+            charBoxes[row][i].add(newLabel);
+            charBoxes[row][i].revalidate();
+            charBoxes[row][i].repaint();
+        }
+    }
+    
+    public void updatePanels() {
+        guessPanel.revalidate();
+        guessPanel.repaint();
+        gameWindow.revalidate();
+        gameWindow.repaint();
+    }
+    
+    public class ButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // update global inputText
+            inputText = input.getText();
+            System.out.println("From ButtonListener: " + inputText);
+        }
+    }
 }
-
-//class ButtonListener implements ActionListener {
-//    public void actionPerformed(ActionEvent e) {
-//            String inputText = input.getText();
-////                System.out.println(inputText);
-//
-//                if (inputText.length() == WORD_LENGTH) {
-//                    for (int i = 0; i < inputText.length(); i++) {
-//                        JLabel newLabel = charLabel(String.valueOf(inputText.charAt(i)));
-//                        charBoxes[0][i].remove(0);
-//                        charBoxes[0][i].add(newLabel);
-//
-//                        charBoxes[0][i].revalidate();
-//                        charBoxes[0][i].repaint();
-//                        guessPanel.revalidate();
-//                        guessPanel.repaint();
-//                        gameWindow.revalidate();
-//                        gameWindow.repaint();
-//
-//                    }
-//                }
-//            }
-//    }
-//}
-
 
