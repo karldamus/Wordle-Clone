@@ -6,12 +6,7 @@ import game.Game;
 import java.io.IOException;
 
 /**
- * Purpose:
- * quick blurb
- * Issues:
- * - issue 1
- * Documentation Link:
- * N/A
+ * Entry point for the Wordle Clone Application
  */
 public class App {
 	public static void main(String[] args) throws IOException {
