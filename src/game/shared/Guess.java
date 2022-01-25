@@ -26,13 +26,15 @@ public class Guess {
 	private static final int IN_WRONG_POS = 1;
 	private static final int IN_RIGHT_POS = 2;
 
+	// TODO: implement number of letters checking
+	
 	public Guess(String currentGuess, String word) {
 		guess = new ArrayList<Map<Integer, Character>>();
 		ArrayList<Character> wordAsList = getCharListFromString(word);
 		
 		for (int i = 0; i < currentGuess.length(); i++) {
 			char currentChar = currentGuess.charAt(i);
-			Map map = new HashMap<Integer, Character>();
+			Map<Integer, Character> map = new HashMap<>();
 			
 			// character is not in word
 			if (!wordAsList.contains(currentChar)) {
@@ -41,14 +43,58 @@ public class Guess {
 			} 
 			// character is in word but in wrong position
 			else if (wordAsList.contains(currentChar) && wordAsList.get(i) != currentChar) {
-				map.put(IN_WRONG_POS, currentChar);
-				guess.add(map);
+				// duplicate letter check
+				int duplicates = 0;
+				int numGuessesOfSameLetter = 0;
+				for (Character c : wordAsList) {
+					if (String.valueOf(c).equalsIgnoreCase(String.valueOf(currentChar)))
+						duplicates++;
+				}
+				for (int k = 0; k < guess.size(); k++) {
+					if (guess.get(k).containsValue(currentChar))
+						numGuessesOfSameLetter++;
+				}
+				System.out.println(numGuessesOfSameLetter);
+				
+				if (numGuessesOfSameLetter < duplicates) {
+					map.put(IN_WRONG_POS, currentChar);
+					guess.add(map);
+				} else {
+					map.put(NOT_IN_WORD, currentChar);
+					guess.add(map);
+				}
+				
+				
+//				// if only one
+//				if (duplicates == 1) {
+//					for (int j = 0; j < guess.size(); j++) {
+//						// if guess already contains the currentChar
+//						// add as NOT_IN_WORD key
+//						if (guess.get(j).containsValue(currentChar)) {
+//							map.put(NOT_IN_WORD, currentChar);
+//							guess.add(map);
+//							break;
+//						}
+//					}
+//					// else, this guess hasn't ben made yet
+//					// add as IN_WRONG_POS key
+//					map.put(IN_WRONG_POS, currentChar);
+//					guess.add(map);
+//				} 
+//				// else one values of currentChar
+//				else {
+////					map.put(IN_WRONG_POS, currentChar);
+////					guess.add(map);
+//				}
+				
 			} 
 			// character is in word and in right position
 			else if (wordAsList.contains(currentChar) && wordAsList.get(i) == currentChar) {
 				map.put(IN_RIGHT_POS, currentChar);
 				guess.add(map);
 			}
+
+			System.out.println(map.entrySet());
 		}
 	}
 	
