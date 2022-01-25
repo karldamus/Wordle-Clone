@@ -1,7 +1,7 @@
-package game;// Author: Karl Damus
+// Author: Karl Damus
 // Date Created: Jan 24, 2022
 
-//import shared.Guess;
+package game;
 
 import game.shared.Guess;
 import static game.shared.Constants.*;
@@ -11,8 +11,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
-
 
 /**
  * Purpose:
@@ -23,61 +21,40 @@ import java.util.Scanner;
  * N/A
  */
 public class Game {
-	/**
-	 * CONSTANTS
-	 */
-//	private  String WORDS_LIST = "src/game.txt/words.game.txt";
-	
 	private  ArrayList<String> availableWords;
 	private  String currentWord;
 	private  ArrayList<Guess> guesses;
 	private int numGuesses;
-	
+
+	/**
+	 * Generate a new game
+	 * @throws IOException FileNotFound; see Game.setUp 
+	 */
 	public Game() throws IOException {
 		setUp();
-//		update();
 		UI ui = new UI();
 		ui.update(this);
 	}
-	
-	public void update() {
-		println(currentWord);
-		
-		while (numGuesses <= NUM_ALLOWED_GUESSES) {
-			String currentGuess = requestInput();
-			
-			if (invalidInput(currentGuess)) {
-				alertUser();
-				continue;
-			}
-			
-			Guess guess = new Guess(currentGuess, currentWord);
-			guesses.add(guess);
-			
-			numGuesses += 1;
-		}
-	}
-	
-	private String requestInput() {
-		Scanner scanner = new Scanner(System.in);
-		System.out.println("Enter a guess: ");
 
-		String guess = scanner.nextLine();
-		
-		return guess.toUpperCase();
-	}
-	
-	private void alertUser() {
-		System.out.println("ALERT");
-	}
-	
+	/**
+	 * Check if the given guess is invalid. Conditions:
+	 *      <li>guess String length != Constants.WORD_LENGTH</li>
+	 *      
+	 * @param guess the given guess/input
+	 *                 
+	 * @return true if invalid; else false
+	 */
 	public boolean invalidInput(String guess) {
 		if (guess.length() != WORD_LENGTH)
 			return true;
 		
 		return false;
 	}
-	
+
+	/**
+	 * Setup global attributes for use by the Game
+	 * @throws IOException if the file is not found, see Game.loadWordsArray
+	 */
 	private void setUp() throws IOException {
 		loadWordsArray();
 		currentWord = getWord();
@@ -87,12 +64,13 @@ public class Game {
 
 	/**
 	 * Load the words from file words.game.txt (WORDS_LIST) into availableWords
-	 * @throws IOException
+	 * @throws IOException if the file is not found, see Constants.WORDS_LIST
 	 */
 	private void loadWordsArray() throws IOException {
-		availableWords = new ArrayList<>();
-		BufferedReader r = new BufferedReader(new FileReader(WORDS_LIST));
+		availableWords = new ArrayList<>(); // init ArrayList of Strings
+		BufferedReader r = new BufferedReader(new FileReader(WORDS_LIST)); // reader for file
 		
+		// loop through file r and add all lines to availableWords
 		for (String line = r.readLine(); line != null; line = r.readLine()) {
 			availableWords.add(line.toUpperCase());
 		}
