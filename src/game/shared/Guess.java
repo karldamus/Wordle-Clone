@@ -27,6 +27,7 @@ public class Guess {
 	private static final int IN_RIGHT_POS = 2;
 
 	public Guess(String currentGuess, String word) {
+		guess = new ArrayList<Map<Integer, Character>>();
 		ArrayList<Character> wordAsList = getCharListFromString(word);
 		
 		for (int i = 0; i < currentGuess.length(); i++) {
@@ -60,16 +61,8 @@ public class Guess {
 		
 		return chars;
 	}
-
-	protected static void printf(String format, Object... args) {
-		System.out.printf(format, args);
-	}
-
-	protected static void println(Object message) {
-		System.out.println(message);
-	}
-
-	protected static void print(Object message) {
-		System.out.print(message);
+	
+	public ArrayList<Map<Integer, Character>> getGuess() {
+		return guess;
 	}
 }
