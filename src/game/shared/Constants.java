@@ -4,6 +4,9 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 
+/**
+ * Constants used throughout the application
+ */
 public interface Constants {
 	// UI
 	String GAME_TITLE = "A Wordle Clone by Karl Damus";
