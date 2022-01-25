@@ -35,7 +35,9 @@ public class Game {
 	
 	public Game() throws IOException {
 		setUp();
-		update();
+//		update();
+		UI ui = new UI();
+		ui.update(this);
 	}
 	
 	public void update() {
@@ -69,7 +71,7 @@ public class Game {
 		System.out.println("ALERT");
 	}
 	
-	private boolean invalidInput(String guess) {
+	public boolean invalidInput(String guess) {
 		if (guess.length() != WORD_LENGTH)
 			return true;
 		
@@ -114,6 +116,22 @@ public class Game {
 		// remove and return the random word 
 		// to avoid repeated words in same session
 		return availableWords.remove(randomWordIndex);
+	}
+	
+	public String getCurrentWord() {
+		return currentWord;
+	}
+	
+	public int getNumGuesses() {
+		return numGuesses;
+	}
+	
+	public void incNumGuesses() {
+		numGuesses += 1;
+	}
+	
+	public void addGuess(Guess guess) {
+		guesses.add(guess);
 	}
 	
 	protected  void println(Object message) {
