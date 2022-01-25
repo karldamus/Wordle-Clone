@@ -10,20 +10,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 import static game.shared.Constants.*;
 
-/**
- * Purpose:
- * quick blurb
- * Issues:
- * - issue 1
- * Documentation Link:
- * N/A
- */
 public class UI {
     private JFrame gameWindow;
     private JPanel guessPanel;
@@ -32,19 +21,26 @@ public class UI {
     
     JTextField input;
     volatile String inputText = "";
-    
-    public static void main(String[] args) {
-        UI ui = new UI();
-    }
-    
+
+    /**
+     * Create a UI object and setup the Swing components
+     */
     public UI() {
         setup();
     }
-    
+
+    /**
+     * Continuously update the UI while waiting for input and validating using the Game object
+     * 
+     * @param game the current Game object
+     * 
+     * @see Game
+     */
     public void update(Game game) {
         System.out.println(game.getCurrentWord());
         
-        int count = game.getNumGuesses();
+        int count = game.getNumGuesses(); // initialize a local count variable to avoid endless loop
+        
         while (count < NUM_ALLOWED_GUESSES) {
             // await input
             while (inputText == "") {
@@ -54,21 +50,30 @@ public class UI {
             if (game.invalidInput(inputText))
                 continue;
             
-            // create new guess and update ui
+            // create new guess
             Guess guess = new Guess(inputText.toUpperCase(), game.getCurrentWord());
             updateCharBox(game.getNumGuesses(), guess);
+            
+            // reset inputText and inputBox
+            inputText = "";
+            input.setText("");
+    
+            // update UI
             updatePanels();
             
-            // reset inputText
-            inputText = "";
-            
-            
-            // increment
+            // increment counts, local and within game
             game.incNumGuesses();
             count++;
         }
     }
-    
+
+    /**
+     * Create a new JLabel with appropriately styling
+     * 
+     * @param s the String value of the JLabel
+     *          
+     * @return the created JLabel
+     */
     public JLabel charLabel(String s) {
         JLabel label = new JLabel(s, SwingConstants.CENTER);
         label.setSize(CHAR_BOX_WIDTH, CHAR_BOX_HEIGHT);
@@ -78,7 +83,10 @@ public class UI {
         
         return label;
     }
-    
+
+    /**
+     * Setup all Java Swing components
+     */
     public void setup() {
         // main window
         gameWindow = new JFrame(GAME_TITLE); 
@@ -130,15 +138,6 @@ public class UI {
         entryPanel.add(input);
         entryPanel.add(submit);
         
-        // TODO: implement button listener for submit button
-        // play around with global variables? 
-        // think about how to link the Game data with the UI
-        // need some way to get text from user in UI
-        //      then process it inside of the Game class
-        //      then return info from Game class to update 
-        //      charBoxes[][] with appropriate letters and colours
-        // might make the UI within the Game class ... idrk
-        
         // add components
         gameWindow.add(guessPanel, BorderLayout.CENTER);
         gameWindow.add(entryPanel, BorderLayout.PAGE_END);
@@ -147,12 +146,20 @@ public class UI {
         gameWindow.pack();
         gameWindow.setVisible(true);
     }
-    
+
+    /**
+     * Update all charBox JPanels in a given row with info from Guess object
+     * @param row the current row ... based on how many number of guesses have been made
+     * @param guess the new Guess object to get colour and character info for JLabels
+     */
     public void updateCharBox(int row, Guess guess) {
+        // loop through each map in the Guess ArrayList of maps
         for (int i = 0; i < guess.getGuess().size(); i++) {
             Integer key = (Integer) guess.getGuess().get(i).keySet().toArray()[0];
             Character value = (Character) guess.getGuess().get(i).values().toArray()[0];
             
+            // get colour based on key value
+            // see shared/Guess
             Color bgColour = switch (key) {
                 case 0 -> DARK_GREY;
                 case 1 -> YELLOW;
@@ -162,6 +169,7 @@ public class UI {
 
             JLabel newLabel = charLabel(String.valueOf(value));
             
+            // update colour, remove old JLabel, add new JLabel, and refresh
             charBoxes[row][i].setBackground(bgColour);
             charBoxes[row][i].remove(0);
             charBoxes[row][i].add(newLabel);
@@ -169,14 +177,28 @@ public class UI {
             charBoxes[row][i].repaint();
         }
     }
-    
+
+    /**
+     * Refresh the following JPanels:
+     * - guessPanel
+     * - entryPanel
+     * - gameWindow
+     */
     public void updatePanels() {
         guessPanel.revalidate();
         guessPanel.repaint();
+        entryPanel.revalidate();
+        entryPanel.repaint();
         gameWindow.revalidate();
         gameWindow.repaint();
     }
-    
+
+    /**
+     * Custom ButtonListener class to enable user input
+     * 
+     * @see #input
+     * @see #setup() 
+     */
     public class ButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
