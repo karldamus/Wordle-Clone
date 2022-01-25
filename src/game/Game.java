@@ -11,7 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-
+import java.util.Scanner;
 
 
 /**
@@ -30,7 +30,7 @@ public class Game {
 	
 	private  ArrayList<String> availableWords;
 	private  String currentWord;
-	private  Guess[] guesses;
+	private  ArrayList<Guess> guesses;
 	private int numGuesses;
 	
 	public Game() throws IOException {
@@ -39,36 +39,47 @@ public class Game {
 	}
 	
 	public void update() {
-		while (numGuesses <= ALLOWED_NUM_GUESSES) {
+		println(currentWord);
+		
+		while (numGuesses <= NUM_ALLOWED_GUESSES) {
 			String currentGuess = requestInput();
+			
 			if (invalidInput(currentGuess)) {
 				alertUser();
 				continue;
 			}
+			
 			Guess guess = new Guess(currentGuess, currentWord);
+			guesses.add(guess);
+			
+			numGuesses += 1;
 		}
 	}
 	
 	private String requestInput() {
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("Enter a guess: ");
+
+		String guess = scanner.nextLine();
 		
+		return guess.toUpperCase();
 	}
 	
 	private void alertUser() {
-		
+		System.out.println("ALERT");
 	}
 	
 	private boolean invalidInput(String guess) {
 		if (guess.length() != WORD_LENGTH)
-			return false;
+			return true;
 		
-		return true;
+		return false;
 	}
 	
 	private void setUp() throws IOException {
 		loadWordsArray();
 		currentWord = getWord();
-		
-		guesses = new Guess[ALLOWED_NUM_GUESSES];
+		guesses = new ArrayList<Guess>();
 		numGuesses = 0;
 	}
 
@@ -104,16 +115,9 @@ public class Game {
 		// to avoid repeated words in same session
 		return availableWords.remove(randomWordIndex);
 	}
-
-	protected  void printf(String format, Object... args) {
-		System.out.printf(format, args);
-	}
-
+	
 	protected  void println(Object message) {
-		System.out.println(message);
-	}
-
-	protected  void print(Object message) {
-		System.out.print(message);
+		if (DEV_MODE)
+			System.out.println(message);
 	}
 }
